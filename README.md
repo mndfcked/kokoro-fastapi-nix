@@ -1,6 +1,6 @@
-# Kokoro-FastAPI Nix Home-Manager Module
+# Kokoro-FastAPI NixOS Module
 
-A Nix Home-Manager module that automatically fetches, sets up, and runs [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) as a systemd service.
+A NixOS module that automatically fetches, sets up, and runs [Kokoro-FastAPI](https://github.com/remsky/Kokoro-FastAPI) as a system service.
 
 ## About Kokoro-FastAPI
 
@@ -17,39 +17,36 @@ Kokoro-FastAPI is a Dockerized text-to-speech (TTS) API wrapper for the Kokoro-8
 ## Features
 
 - Automatically clones and updates Kokoro-FastAPI repository to latest version
-- Configures Docker and docker-compose environment
-- Creates systemd service for automatic startup and management
+- Configures Docker and docker-compose environment at system level
+- Creates system-wide systemd service for automatic startup and management
 - Supports both CPU and GPU inference modes
 - Configurable port and environment variables
-- Optional firewall configuration for local network access
-- Runs as dedicated user for security isolation
+- Optional firewall configuration for network access
+- Runs as dedicated system user for security isolation
 - Automatic service restart on failure
+- System-wide package installation
 
 ## Installation
 
 ### Method 1: Using Flakes (Recommended)
 
-Add this flake as an input to your Home Manager configuration:
+Add this flake as an input to your NixOS configuration:
 
 ```nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     kokoro-fastapi-nix = {
       url = "github:mndfcked/kokoro-fastapi-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
-  outputs = { nixpkgs, home-manager, kokoro-fastapi-nix, ... }: {
-    homeConfigurations.your-user = home-manager.lib.homeManagerConfiguration {
-      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+  outputs = { nixpkgs, kokoro-fastapi-nix, ... }: {
+    nixosConfigurations.your-hostname = nixpkgs.lib.nixosSystem {
+      system = "x86_64-linux";
       modules = [
-        kokoro-fastapi-nix.homeManagerModules.default
+        kokoro-fastapi-nix.nixosModules.default
         {
           services.kokoro-fastapi = {
             enable = true;
@@ -66,7 +63,7 @@ Add this flake as an input to your Home Manager configuration:
 
 ### Method 2: Direct Import
 
-Clone this repository and import the module directly:
+Clone this repository and import the module directly into your NixOS configuration:
 
 ```nix
 { config, pkgs, ... }:
@@ -152,34 +149,34 @@ services.kokoro-fastapi = {
 
 ## Service Management
 
-After enabling the module and rebuilding your Home Manager configuration:
+After enabling the module and rebuilding your NixOS configuration:
 
 ### Basic Commands
 
 ```bash
 # Start the service
-sudo systemctl start kokoro-fastapi
+systemctl start kokoro-fastapi
 
 # Stop the service
-sudo systemctl stop kokoro-fastapi
+systemctl stop kokoro-fastapi
 
 # Enable automatic startup on boot
-sudo systemctl enable kokoro-fastapi
+systemctl enable kokoro-fastapi
 
 # Disable automatic startup
-sudo systemctl disable kokoro-fastapi
+systemctl disable kokoro-fastapi
 
 # Restart the service (updates to latest repository version)
-sudo systemctl restart kokoro-fastapi
+systemctl restart kokoro-fastapi
 
 # Check service status
-sudo systemctl status kokoro-fastapi
+systemctl status kokoro-fastapi
 
 # View real-time logs
-sudo journalctl -u kokoro-fastapi -f
+journalctl -u kokoro-fastapi -f
 
 # View recent logs
-sudo journalctl -u kokoro-fastapi -n 50
+journalctl -u kokoro-fastapi -n 50
 ```
 
 ## Accessing the Service
@@ -223,7 +220,7 @@ Available voices include:
 
 1. Install NVIDIA Docker runtime on your system
 2. Set `useGpu = true` in your configuration
-3. Rebuild your Home Manager configuration
+3. Rebuild your NixOS configuration
 4. Restart the service
 
 ```nix
@@ -245,7 +242,7 @@ services.kokoro-fastapi = {
 
 Check Docker status:
 ```bash
-sudo systemctl status docker
+systemctl status docker
 ```
 
 Verify user permissions:
@@ -274,7 +271,7 @@ services.kokoro-fastapi.port = 8881;
 
 The service automatically updates to the latest version on restart. To force an update:
 ```bash
-sudo systemctl restart kokoro-fastapi
+systemctl restart kokoro-fastapi
 ```
 
 ### GPU Not Detected
@@ -303,8 +300,8 @@ services.kokoro-fastapi.environment = {
 
 Clean Docker cache and rebuild:
 ```bash
-sudo docker system prune -a
-sudo systemctl restart kokoro-fastapi
+docker system prune -a
+systemctl restart kokoro-fastapi
 ```
 
 ## Development
@@ -325,8 +322,8 @@ nix flake check
 
 ## Requirements
 
-- NixOS or Nix package manager with flakes enabled
-- Docker support
+- NixOS system with flakes enabled
+- Docker support (automatically configured by the module)
 - Internet connection for initial repository clone
 - For GPU: NVIDIA GPU with CUDA support and NVIDIA Docker runtime
 

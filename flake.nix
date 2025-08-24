@@ -1,26 +1,18 @@
 {
-  description = "Nix Home-Manager module for Kokoro-FastAPI TTS service";
+  description = "NixOS module for Kokoro-FastAPI TTS service";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: {
-    # Home Manager module
-    homeManagerModules.default = ./kokoro-fastapi.nix;
-    homeManagerModules.kokoro-fastapi = ./kokoro-fastapi.nix;
-
-    # NixOS module (can also be used in NixOS configurations)
+  outputs = { self, nixpkgs, ... }: {
+    # NixOS module
     nixosModules.default = ./kokoro-fastapi.nix;
     nixosModules.kokoro-fastapi = ./kokoro-fastapi.nix;
 
     # Example configuration for testing
     packages.x86_64-linux.example = nixpkgs.legacyPackages.x86_64-linux.writeText "example-config.nix" ''
-      # Example Home Manager configuration
+      # Example NixOS configuration
       { config, pkgs, ... }:
       {
         imports = [ 

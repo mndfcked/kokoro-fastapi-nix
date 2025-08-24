@@ -59,6 +59,7 @@ in {
   };
 
   config = mkIf cfg.enable {
+    # Create user and group for the service
     users.users.${cfg.user} = {
       isSystemUser = true;
       group = cfg.group;
@@ -69,11 +70,13 @@ in {
 
     users.groups.${cfg.group} = {};
 
+    # Enable Docker
     virtualisation.docker = {
       enable = true;
       enableOnBoot = true;
     };
 
+    # Create systemd service
     systemd.services.kokoro-fastapi = {
       description = "Kokoro-FastAPI TTS Service";
       after = [ "network.target" "docker.service" ];
@@ -116,6 +119,7 @@ in {
       };
     };
 
+    # Configure firewall
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts = [ cfg.port ];
     };
