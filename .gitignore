@@ -1,0 +1,35 @@
+# Nix build results
+result
+result-*
+
+# Nix development shell
+.direnv/
+.envrc
+
+# Nix build cache
+.nix-build/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Log files
+*.log
+
+# Local development overrides
+flake.lock.backup
+shell.nix.backup
